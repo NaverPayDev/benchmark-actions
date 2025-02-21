@@ -1,0 +1,12 @@
+{
+    "name": "benchmark-actions",
+    "author": "NaverPayDev",
+    "description": "",
+    "version": "0.0.0",
+    "type": "commonjs",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/NaverPayDev/benchmark-actions.git"
+    },
+    "scripts": {}
+}
