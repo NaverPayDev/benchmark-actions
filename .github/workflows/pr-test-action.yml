@@ -8,11 +8,6 @@ on:
             - '!test/**/*.spec.ts'
 
 jobs:
-    run-npm-on-ubuntu:
-        name: Run npm on Ubuntu
-        runs-on: ubuntu-latest
-        steps:
-
     create-benchmark-comment:
         name: create benchmark comment
         runs-on: ubuntu-latest
