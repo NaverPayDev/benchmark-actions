@@ -1,0 +1,36 @@
+name: Benchmark Comment on PR
+
+on:
+    pull_request:
+        paths:
+            - 'test/**'
+            - '!test/**/*.test.ts'
+            - '!test/**/*.spec.ts'
+
+jobs:
+    run-npm-on-ubuntu:
+        name: Run npm on Ubuntu
+        runs-on: ubuntu-latest
+        steps:
+
+    create-benchmark-comment:
+        name: create benchmark comment
+        runs-on: ubuntu-latest
+        steps:
+            - name: Git
+              uses: actions/checkout@v4
+            - name: Setup node
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: '20'
+            - name: Install pnpm
+              run: npm install -g pnpm
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+            - name: Setup node
+              uses: NaverPayDev@benchmark-actions
+              with:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  PACKAGE_MANAGER: 'pnpm'
+                  GITHUB_TARGET: 'comment'
+                  GITHUB_SOURCE_ROOT: 'test'
