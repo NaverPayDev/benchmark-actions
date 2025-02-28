@@ -1,0 +1,23 @@
+name: 'benchmark-actions'
+description: '성능을 측정하는 action 입니다.'
+runs:
+    using: 'node20'
+    main: 'dist/index.js'
+inputs:
+    GITHUB_TOKEN:
+        description: 'get github token'
+        required: true
+    PACKAGE_MANAGER:
+        description: 'select package manager'
+        required: false
+        default: 'npm'
+    GITHUB_TARGET:
+        description: 'target comment|markdown'
+        required: true
+        default: 'comment'
+        type: string
+    GITHUB_SOURCE_ROOT:
+        description: 'source path'
+        required: false
+        default: 'src'
+        type: string
