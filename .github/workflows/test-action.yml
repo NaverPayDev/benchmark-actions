@@ -1,14 +1,15 @@
-name: Benchmark Comment on PR
+name: Benchmark Readme
 
 on:
-    pull_request:
-        paths:
-            - 'test/**'
-            - '!test/**/*.test.ts'
-            - '!test/**/*.spec.ts'
-
+    workflow_dispatch:
+        inputs:
+            target:
+                description: 'target'
+                default: 'markdown'
+                required: true
+                type: string
 jobs:
-    create-benchmark-comment:
+    create-benchmark-readme:
         name: create benchmark comment
         runs-on: ubuntu-latest
         steps:
@@ -27,5 +28,5 @@ jobs:
               with:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   PACKAGE_MANAGER: 'pnpm'
-                  TARGET: 'comment'
+                  TARGET: ${{ github.event.inputs.target }}
                   SOURCE_ROOT: 'test'

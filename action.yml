@@ -11,12 +11,12 @@ inputs:
         description: 'select package manager'
         required: false
         default: 'npm'
-    GITHUB_TARGET:
+    TARGET:
         description: 'target comment|markdown'
         required: true
         default: 'comment'
         type: string
-    GITHUB_SOURCE_ROOT:
+    SOURCE_ROOT:
         description: 'source path'
         required: false
         default: 'src'
