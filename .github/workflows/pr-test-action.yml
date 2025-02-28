@@ -28,7 +28,7 @@ jobs:
             - name: Install dependencies
               run: pnpm install --frozen-lockfile
             - name: Setup node
-              uses: NaverPayDev@benchmark-actions
+              uses: NaverPayDev/benchmark-actions
               with:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   PACKAGE_MANAGER: 'pnpm'
