@@ -1,0 +1,7 @@
+# changeset 제외
+.changeset
+
+# pnpm lock yaml 제외
+pnpm-lock.yaml
+
+dist

@@ -1,12 +1,42 @@
 {
     "name": "benchmark-actions",
     "author": "NaverPayDev",
-    "description": "",
+    "description": "성능을 측정하는 action 입니다.",
     "version": "0.0.0",
     "type": "commonjs",
+    "main": "./dist/index.js",
     "repository": {
         "type": "git",
         "url": "https://github.com/NaverPayDev/benchmark-actions.git"
     },
-    "scripts": {}
+    "scripts": {
+        "build": "npx ncc build ./src/index.ts -t --minify",
+        "lint": "eslint",
+        "lint:fix": "eslint --fix",
+        "prettier": "prettier --check '**/*.{json,yaml,yml,md,ts,tsx,js,jsx}'",
+        "prettier:fix": "prettier --write '**/*.{json,yaml,yml,md,ts,tsx,js,jsx}'",
+        "vitest": "vitest",
+        "bench": "vitest bench"
+    },
+    "dependencies": {
+        "@actions/core": "^1.11.1",
+        "@actions/github": "^6.0.0"
+    },
+    "devDependencies": {
+        "@naverpay/eslint-config": "^2.2.2",
+        "@naverpay/prettier-config": "^1.0.0",
+        "@types/node": "^22.13.5",
+        "@vercel/ncc": "^0.38.3",
+        "typescript": "^5.7.3",
+        "vitest": "2.1.6"
+    },
+    "packageManager": "pnpm@9.12.3",
+    "engines": {
+        "node": "20.10.0",
+        "pnpm": "9.12.3"
+    },
+    "lint-staged": {
+        "**/*.{json,yaml,md,ts,tsx,js,jsx}": "prettier --check",
+        "**/*.{ts,tsx,js,jsx}": "eslint"
+    }
 }
