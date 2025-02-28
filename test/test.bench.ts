@@ -32,7 +32,7 @@ const testCases = [
     mixedObjects,
 ]
 
-const ITERATIONS = 10
+const ITERATIONS = 9
 
 const _assign = (target: any, ...sources: any[]) => {
     return {
