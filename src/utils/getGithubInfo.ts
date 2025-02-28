@@ -3,7 +3,7 @@ import * as github from '@actions/github'
 
 export async function getGithubInfo() {
     try {
-        const srcPath = core.getInput('GITHUB_SOURCE_ROOT') || './src'
+        const srcPath = core.getInput('SOURCE_ROOT') || './src'
         const {pull_request, repository} = github.context.payload
         return {
             baseTarget: pull_request?.base.ref || 'main',

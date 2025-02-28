@@ -5,12 +5,12 @@ import {commentAction} from './comment-action'
 import {markdownAction} from './markdown-action'
 
 ;(async function main() {
-    const GITHUB_TARGET = core.getInput('GITHUB_TARGET')
+    const TARGET = core.getInput('TARGET')
     const PACKAGE_MANAGER = core.getInput('PACKAGE_MANAGER')
 
-    if (GITHUB_TARGET === 'comment') {
+    if (TARGET === 'comment') {
         console.log(await commentAction())
-    } else if (GITHUB_TARGET === 'markdown') {
+    } else if (TARGET === 'markdown') {
         console.log(await markdownAction())
     } else {
         console.log('No target')
