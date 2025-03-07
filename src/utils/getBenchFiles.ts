@@ -3,6 +3,7 @@ import fs from 'fs'
 import path from 'path'
 
 import {getPullRequestDiffFiles} from './getGithubInfo'
+import {b} from 'vite-node/index-z0R8hVRu'
 
 /**
  * 주어진 폴더 내에 포함된 모든 파일들을 검색 합니다.
@@ -44,7 +45,7 @@ type AllImportsInFiles = Map<
 /**
  * 주어진 파일 내에 포함된 import 구문을 찾아 반환합니다.
  **/
-function findAllImportsInFiles(files: string[], rootFile: boolean = false): AllImportsInFiles {
+function findAllImportsInFiles(benchFiles: string[]): AllImportsInFiles {
     // import 한 친구를 찾아야함
     const result = new Map<
         string,
@@ -56,67 +57,86 @@ function findAllImportsInFiles(files: string[], rootFile: boolean = false): AllI
         }
     >()
 
-    function findImportsRecursively(filePath: string) {
+    function findImportsRecursively({
+        filePath,
+        parentPath,
+        isBenchFile,
+    }: {
+        filePath: string
+        parentPath?: string
+        isBenchFile: boolean
+    }) {
         if (result.has(filePath)) {
+            // eslint-disable-next-line no-console
+            console.log('has', filePath)
             result.get(filePath)?.parents.add(filePath)
             // Avoid infinite recursion by skipping already visited files
             return
         }
+        // eslint-disable-next-line no-console
+        console.log('none', filePath)
 
         if (!fs.existsSync(filePath)) {
             console.warn(`Warning: File does not exist - ${filePath}`)
             return
         }
 
-        const parents = new Set<string>()
-        const importList = new Set<string>()
-        result.set(filePath, {
-            rootFile,
-            filePath,
-            parents,
-            imports: importList,
-        })
+        const importedFiles = new Set<string>()
 
         const content = fs.readFileSync(filePath, 'utf-8')
 
         const importRegex = /import\s+.*?['|"](.*?)['|"]/g
 
-        const importedFiles = new Set<string>()
         let match
-
-        function addImportedFile(importedPath: string) {
-            const resultFilePath = path.resolve(path.dirname(filePath), importedPath)
-            const extList = ['.ts', '.js']
-            extList.some((ext) => {
-                if (resultFilePath.endsWith(ext)) {
-                    importedFiles.add(resultFilePath)
-                    return true
-                } else if (fs.existsSync(`${resultFilePath}${ext}`)) {
-                    importedFiles.add(`${resultFilePath}${ext}}`)
-                    return true
-                }
-                return false
-            })
-        }
 
         while ((match = importRegex.exec(content)) !== null) {
             const importPath = match[1]
 
             if (['./', '../'].some((ext) => importPath.startsWith(ext))) {
-                addImportedFile(importPath)
+                const resultFilePath = path.resolve(path.dirname(filePath), importPath)
+                const extList = ['.ts', '.js']
+                extList.some((ext) => {
+                    if (resultFilePath.endsWith(ext)) {
+                        importedFiles.add(resultFilePath)
+                        return true
+                    } else if (fs.existsSync(`${resultFilePath}${ext}`)) {
+                        importedFiles.add(`${resultFilePath}${ext}`)
+                        return true
+                    }
+                    return false
+                })
             }
         }
 
+        const parents = new Set<string>()
+
+        if (parentPath) {
+            parents.add(parentPath)
+        }
+
+        result.set(filePath, {
+            rootFile: isBenchFile,
+            filePath,
+            parents,
+            imports: importedFiles,
+        })
+
         // Get the imports within the imported files recursively
         importedFiles.forEach((importedFile) => {
-            console.log('importedFiles', importedFile)
-            findImportsRecursively(importedFile)
+            findImportsRecursively({
+                filePath: importedFile,
+                parentPath: filePath,
+                isBenchFile: false,
+            })
         })
     }
 
-    // Process each file and resolve its imports
-    files.forEach((filePath) => {
-        findImportsRecursively(filePath)
+    // 밴치 파일
+    benchFiles.forEach((benchFilePath) => {
+        findImportsRecursively({
+            filePath: benchFilePath,
+            isBenchFile: true,
+        })
     })
 
     return result
@@ -163,7 +183,7 @@ export async function getBenchFiles({
         console.log('Found bench files:', benchFiles)
 
         // bench 파일에서 import 한 파일을 찾습니다.
-        const importsFileTree = findAllImportsInFiles(benchFiles, true)
+        const importsFileTree = findAllImportsInFiles(benchFiles)
         console.log('Found imports files:', [...importsFileTree.keys()])
 
         // branch 에서 diff 파일들을 찾습니다.

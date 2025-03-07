@@ -22,7 +22,7 @@ export async function commentAction(): Promise<string> {
     })
 
     if (!files.length) {
-        return              'No bench files found'
+        return 'Not Found bench files'
     }
     console.log('Found bench files:', files)
 
@@ -32,7 +32,7 @@ export async function commentAction(): Promise<string> {
     })
 
     if (!resultBench) {
-        return 'No bench files found'
+        return 'Not Found bench json file'
     }
     // json 파일을 읽어서 마크다운 파일을 만듭니다.
     const resultMarkdown = await makeMarkdown({
