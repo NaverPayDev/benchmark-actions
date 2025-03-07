@@ -17,11 +17,12 @@ export async function commentAction(): Promise<string> {
     const files = await getBenchFiles({
         target: baseTarget,
         srcPath,
+        prNumber: issueNumber,
         targetFileNames: ['.bench.js', '.bench.ts'],
     })
 
     if (!files.length) {
-        return 'No bench files found'
+        return              'No bench files found'
     }
     console.log('Found bench files:', files)
 

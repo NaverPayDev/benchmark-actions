@@ -149,8 +149,10 @@ function findFiles(importsFileTree: AllImportsInFiles, diffFiles: string[]): str
 export async function getBenchFiles({
     srcPath,
     targetFileNames,
+    prNumber,
 }: {
     target: string
+    prNumber: number
     srcPath: string
     targetFileNames: string[]
 }) {
@@ -165,7 +167,7 @@ export async function getBenchFiles({
         console.log('Found imports files:', [...importsFileTree.keys()])
 
         // branch 에서 diff 파일들을 찾습니다.
-        const diffFiles = await getPullRequestDiffFiles()
+        const diffFiles = await getPullRequestDiffFiles({pullNumber: prNumber})
         console.log('Found diff files:', diffFiles)
 
         // 결과를 찾아 받환합니다.

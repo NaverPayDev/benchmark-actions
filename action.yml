@@ -21,3 +21,8 @@ inputs:
         required: false
         default: 'src'
         type: string
+    PR_NUMBER:
+        description: 'pr number'
+        required: false
+        default: 0
+        type: number

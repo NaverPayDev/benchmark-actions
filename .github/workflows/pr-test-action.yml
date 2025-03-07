@@ -6,6 +6,12 @@ on:
             - 'test/**'
             - '!test/**/*.test.ts'
             - '!test/**/*.spec.ts'
+    workflow_dispatch:
+        inputs:
+            pr_number:
+                description: 'PR number to run benchmark on'
+                required: false
+                type: number
 
 jobs:
     create-benchmark-comment:
@@ -29,3 +35,4 @@ jobs:
                   PACKAGE_MANAGER: 'pnpm'
                   TARGET: 'comment'
                   SOURCE_ROOT: 'test'
+                  PR_NUMBER: ${{ github.event.inputs.pr_number }}
