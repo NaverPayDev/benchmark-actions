@@ -1,5 +1,5 @@
 import {fetchIssueComment} from './utils/fetchIssueComment'
-import {getBench} from './utils/getBench'
+import {makeBenchJson} from './utils/makeBenchJson'
 import {getBenchFiles} from './utils/getBenchFiles'
 import {getGithubInfo} from './utils/getGithubInfo'
 import {makeMarkdown} from './utils/makeMarkdown'
@@ -24,10 +24,10 @@ export async function commentAction(): Promise<string> {
     if (!files.length) {
         return 'Not Found bench files'
     }
-    console.log('Found bench files:', files)
+    console.log('Found Run bench files:', files)
 
     // benchmark 결과를 반환합니다.
-    const resultBench = await getBench({
+    const resultBench = await makeBenchJson({
         includeFiles: files,
     })
 

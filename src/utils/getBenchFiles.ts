@@ -3,7 +3,6 @@ import fs from 'fs'
 import path from 'path'
 
 import {getPullRequestDiffFiles} from './getGithubInfo'
-import {b} from 'vite-node/index-z0R8hVRu'
 
 /**
  * 주어진 폴더 내에 포함된 모든 파일들을 검색 합니다.
@@ -32,15 +31,14 @@ function findFilesInDirectory(defaultDir: string, fileNames: string[]) {
     return getFindFiles(defaultDir)
 }
 
-type AllImportsInFiles = Map<
-    string,
-    {
-        rootFile: boolean
-        filePath: string
-        parents: Set<string>
-        imports: Set<string>
-    }
->
+type AllImportsInFileItem = {
+    rootFile: boolean
+    filePath: string
+    parents: Set<string>
+    imports: Set<string>
+}
+
+type AllImportsInFiles = Map<string, AllImportsInFileItem>
 
 /**
  * 주어진 파일 내에 포함된 import 구문을 찾아 반환합니다.
@@ -67,14 +65,10 @@ function findAllImportsInFiles(benchFiles: string[]): AllImportsInFiles {
         isBenchFile: boolean
     }) {
         if (result.has(filePath)) {
-            // eslint-disable-next-line no-console
-            console.log('has', filePath)
             result.get(filePath)?.parents.add(filePath)
             // Avoid infinite recursion by skipping already visited files
             return
         }
-        // eslint-disable-next-line no-console
-        console.log('none', filePath)
 
         if (!fs.existsSync(filePath)) {
             console.warn(`Warning: File does not exist - ${filePath}`)
@@ -144,24 +138,34 @@ function findAllImportsInFiles(benchFiles: string[]): AllImportsInFiles {
 
 function findFiles(importsFileTree: AllImportsInFiles, diffFiles: string[]): string[] {
     const result = new Set<string>()
-    const getImportFile = (diffFile: string) => {
-        // const item = importsFileTree.get(importFile)
-        for (const [importFile, item] of importsFileTree) {
-            if (importFile.endsWith(diffFile)) {
-                if (item?.rootFile) {
-                    result.add(diffFile)
-                } else if (item) {
-                    item.parents.forEach((parentFile) => {
-                        getImportFile(parentFile)
-                    })
+    const findRootFile = (filePath: string): string => {
+        const finder = importsFileTree.get(filePath)
+        if (finder) {
+            if (finder.rootFile) {
+                return filePath
+            }
+            for (const parentFilePath of finder.parents) {
+                const file = findRootFile(parentFilePath)
+                if (file) {
+                    return file
                 }
             }
         }
+        return ''
     }
 
-    diffFiles.forEach((importFile) => {
-        getImportFile(importFile)
-    })
+    console.log('diffFiles benchFiles')
+    for (const [importFile] of importsFileTree) {
+        diffFiles.forEach((diffFile) => {
+            if (importFile.endsWith(diffFile)) {
+                const finder = findRootFile(importFile)
+                if (finder) {
+                    result.add(finder)
+                }
+            }
+        })
+    }
+
     return [...result.values()]
 }
 

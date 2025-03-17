@@ -4,7 +4,7 @@ import path from 'path'
 import {type Bench} from './interfaces'
 import {runVitestBench} from './packageManager'
 
-export async function getBench({
+export async function makeBenchJson({
     includeFiles,
     outputFile = 'result.json',
 }: {

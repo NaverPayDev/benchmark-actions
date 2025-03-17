@@ -1,4 +1,4 @@
-import {getBench} from './utils/getBench'
+import {makeBenchJson} from './utils/makeBenchJson'
 import {getGithubInfo} from './utils/getGithubInfo'
 import {makeMarkdown} from './utils/makeMarkdown'
 import {writeBenchMark} from './utils/writeBenchMark'
@@ -11,7 +11,7 @@ export async function markdownAction(): Promise<string> {
     }
     const {baseTarget, repoUrl} = githubInfo
 
-    const resultBench = await getBench({})
+    const resultBench = await makeBenchJson({})
 
     if (!resultBench) {
         return 'No bench files found'
