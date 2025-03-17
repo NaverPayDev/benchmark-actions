@@ -140,23 +140,7 @@ function findAllImportsInFiles(benchFiles: string[]): AllImportsInFiles {
 
 function findFiles(importsFileTree: AllImportsInFiles, diffFiles: string[]): string[] {
     const result = new Set<string>()
-    const findRootFile = (filePath: string): string[] => {
-        const finder = importsFileTree.get(filePath)
-        if (finder) {
-            if (finder.rootFile) {
-                return [filePath]
-            }
 
-            let result: string[] = []
-            for (const parentFilePath of finder.parents) {
-                result = [...result, ...findRootFile(parentFilePath)]
-            }
-            return result
-        }
-        return []
-    }
-
-    console.log('diffFiles benchFiles')
     for (const [importFile, value] of importsFileTree) {
         diffFiles.forEach((diffFile) => {
             if (importFile.endsWith(diffFile)) {
@@ -185,21 +169,16 @@ export async function getBenchFiles({
     if (fs.existsSync(srcDirPath)) {
         // 모든 bench 파일을 찾습니다.
         const benchFiles = findFilesInDirectory(srcDirPath, targetFileNames)
-        console.log('Found bench files:', benchFiles)
 
         // bench 파일에서 import 한 파일을 찾습니다.
         const importsFileTree = findAllImportsInFiles(benchFiles)
-        console.log('Found imports files:', [...importsFileTree.keys()])
 
         // branch 에서 diff 파일들을 찾습니다.
         const diffFiles = await getPullRequestDiffFiles({pullNumber: prNumber})
         console.log('Found diff files:', diffFiles)
 
         // 결과를 찾아 받환합니다.
-        const result = findFiles(importsFileTree, diffFiles)
-        console.log(result)
-
-        return result
+        return findFiles(importsFileTree, diffFiles)
     } else {
         return []
     }

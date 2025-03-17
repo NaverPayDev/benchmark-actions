@@ -34,6 +34,7 @@ export async function commentAction(): Promise<string> {
     if (!resultBench) {
         return 'Not Found bench json file'
     }
+    console.log('Result bench file')
     // json 파일을 읽어서 마크다운 파일을 만듭니다.
     const resultMarkdown = await makeMarkdown({
         data: resultBench,
