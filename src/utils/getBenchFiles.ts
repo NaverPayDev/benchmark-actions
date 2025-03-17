@@ -34,6 +34,7 @@ function findFilesInDirectory(defaultDir: string, fileNames: string[]) {
 type AllImportsInFileItem = {
     rootFile: boolean
     filePath: string
+    bench: Set<string>
     parents: Set<string>
     imports: Set<string>
 }
@@ -45,26 +46,21 @@ type AllImportsInFiles = Map<string, AllImportsInFileItem>
  **/
 function findAllImportsInFiles(benchFiles: string[]): AllImportsInFiles {
     // import 한 친구를 찾아야함
-    const result = new Map<
-        string,
-        {
-            rootFile: boolean
-            filePath: string
-            parents: Set<string>
-            imports: Set<string>
-        }
-    >()
+    const result = new Map<string, AllImportsInFileItem>()
 
     function findImportsRecursively({
         filePath,
         parentPath,
+        bench,
         isBenchFile,
     }: {
         filePath: string
+        bench: string
         parentPath?: string
         isBenchFile: boolean
     }) {
         if (result.has(filePath)) {
+            result.get(filePath)?.bench.add(bench)
             result.get(filePath)?.parents.add(filePath)
             // Avoid infinite recursion by skipping already visited files
             return
@@ -75,6 +71,7 @@ function findAllImportsInFiles(benchFiles: string[]): AllImportsInFiles {
             return
         }
 
+        // import 파일이 있어서 추가로 검사 해아하는 파일목록
         const importedFiles = new Set<string>()
 
         const content = fs.readFileSync(filePath, 'utf-8')
@@ -102,7 +99,9 @@ function findAllImportsInFiles(benchFiles: string[]): AllImportsInFiles {
             }
         }
 
+        // 부모 파일을 찾아서 추가합니다.
         const parents = new Set<string>()
+        const benchSet = new Set<string>([bench])
 
         if (parentPath) {
             parents.add(parentPath)
@@ -112,6 +111,7 @@ function findAllImportsInFiles(benchFiles: string[]): AllImportsInFiles {
             rootFile: isBenchFile,
             filePath,
             parents,
+            bench: benchSet,
             imports: importedFiles,
         })
 
@@ -120,6 +120,7 @@ function findAllImportsInFiles(benchFiles: string[]): AllImportsInFiles {
             findImportsRecursively({
                 filePath: importedFile,
                 parentPath: filePath,
+                bench,
                 isBenchFile: false,
             })
         })
@@ -129,6 +130,7 @@ function findAllImportsInFiles(benchFiles: string[]): AllImportsInFiles {
     benchFiles.forEach((benchFilePath) => {
         findImportsRecursively({
             filePath: benchFilePath,
+            bench: benchFilePath,
             isBenchFile: true,
         })
     })
@@ -138,30 +140,29 @@ function findAllImportsInFiles(benchFiles: string[]): AllImportsInFiles {
 
 function findFiles(importsFileTree: AllImportsInFiles, diffFiles: string[]): string[] {
     const result = new Set<string>()
-    const findRootFile = (filePath: string): string => {
+    const findRootFile = (filePath: string): string[] => {
         const finder = importsFileTree.get(filePath)
         if (finder) {
             if (finder.rootFile) {
-                return filePath
+                return [filePath]
             }
+
+            let result: string[] = []
             for (const parentFilePath of finder.parents) {
-                const file = findRootFile(parentFilePath)
-                if (file) {
-                    return file
-                }
+                result = [...result, ...findRootFile(parentFilePath)]
             }
+            return result
         }
-        return ''
+        return []
     }
 
     console.log('diffFiles benchFiles')
-    for (const [importFile] of importsFileTree) {
+    for (const [importFile, value] of importsFileTree) {
         diffFiles.forEach((diffFile) => {
             if (importFile.endsWith(diffFile)) {
-                const finder = findRootFile(importFile)
-                if (finder) {
-                    result.add(finder)
-                }
+                value.bench.forEach((bench) => {
+                    result.add(bench)
+                })
             }
         })
     }
