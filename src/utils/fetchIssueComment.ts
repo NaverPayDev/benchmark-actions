@@ -40,6 +40,6 @@ export async function fetchIssueComment({content, issueNumber}: {content: string
         }
     } catch (error) {
         // eslint-disable-next-line no-console
-        console.error('Error:', (error as Error).message)
+        console.error('Comment Error:', (error as Error).message)
     }
 }

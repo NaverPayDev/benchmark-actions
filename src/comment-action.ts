@@ -46,6 +46,8 @@ export async function commentAction(): Promise<string> {
     if (!resultMarkdown) {
         return 'No markdown'
     }
+    console.log('Result markdown')
+
     const updateAction = `*Last updated by [GitHub Actions](${repoUrl}/actions/runs/${process.env.GITHUB_RUN_ID})*`
     // 작성된 benchmark 결과를 comment 에 작성합니다.
     await fetchIssueComment({
