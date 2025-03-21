@@ -1,7 +1,6 @@
-import {fetchIssueComment} from './utils/fetchIssueComment'
 import {makeBenchJson} from './utils/makeBenchJson'
 import {getBenchFiles} from './utils/getBenchFiles'
-import {getGithubInfo} from './utils/getGithubInfo'
+import {getGithubInfo, fetchIssueComment} from './utils/getGithubInfo'
 import {makeMarkdown} from './utils/makeMarkdown'
 
 export async function commentAction(): Promise<string> {

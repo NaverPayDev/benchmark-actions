@@ -1,16 +1,20 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 
+function getOctokit() {
+    const myToken = core.getInput('GITHUB_TOKEN')
+    return github.getOctokit(myToken)
+}
+
 export async function getGithubInfo() {
     try {
-        const myToken = core.getInput('GITHUB_TOKEN')
         const srcPath = core.getInput('SOURCE_ROOT') || './src'
         const prNumber = Number(core.getInput('PR_NUMBER')) || 0
         const {pull_request, repository} = github.context.payload
         const repo = github.context.repo
 
         if (prNumber && prNumber > 0) {
-            const octokit = github.getOctokit(myToken);
+            const octokit = getOctokit()
 
             const {data} = await octokit.rest.pulls.get({
                 ...repo,
@@ -39,8 +43,7 @@ export async function getGithubInfo() {
 }
 
 export async function getPullRequestDiffFiles({pullNumber}: {pullNumber: number}) {
-    const myToken = core.getInput('GITHUB_TOKEN')
-    const octokit = github.getOctokit(myToken)
+    const octokit = getOctokit()
 
     const repo = github.context.repo
 
@@ -53,4 +56,40 @@ export async function getPullRequestDiffFiles({pullNumber}: {pullNumber: number}
     })
 
     return list.map((file) => file.filename)
+}
+
+export async function fetchIssueComment({content, issueNumber}: {content: string; issueNumber: number}) {
+    try {
+        const octokit = getOctokit()
+
+        const repo = github.context.repo
+        const result = {
+            ...repo,
+            body: content,
+        }
+
+        const {data: comments} = await octokit.rest.issues.listComments({
+            ...repo,
+            issue_number: issueNumber,
+        })
+
+        const existingComment = comments.find((comment) => comment?.body?.includes('### Benchmark Results'))
+
+
+        if (existingComment) {
+            console.log('existingComment.id', existingComment.id)
+            await octokit.rest.issues.updateComment({
+                ...result,
+                comment_id: existingComment.id,
+            })
+        } else {
+            await octokit.rest.issues.createComment({
+                ...result,
+                issue_number: issueNumber,
+            })
+        }
+    } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('Error:', (error as Error).message)
+    }
 }
